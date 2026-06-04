@@ -169,6 +169,14 @@ const [showLogoutPopup, setShowLogoutPopup] =
 
       return;
     }
+    if (!/^\d{6}$/.test(password)) {
+
+  alert(
+    "Password must contain exactly 6 digits"
+  );
+
+  return;
+}
 
     try {
 
@@ -465,6 +473,14 @@ const changePassword = async () => {
 
     return;
   }
+  if (!/^\d{6}$/.test(newPassword)) {
+
+  alert(
+    "Password must contain exactly 6 digits"
+  );
+
+  return;
+}
 
   try {
 
@@ -1161,6 +1177,7 @@ Title,Amount,Category,Date
 
   <h1>
     SpendSense
+
   </h1>
 
 </div>

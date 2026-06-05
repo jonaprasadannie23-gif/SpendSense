@@ -35,7 +35,30 @@ https://spend-sense-peach.vercel.app
 
 ## 📸 Screenshots
 
-Coming Soon...
+## 📸 Screenshots
+
+### Login Page
+
+![Login Page](screenshots/login.png)
+
+### Dashboard
+
+![Dashboard](screenshots/dashboard.png)
+
+### Expenses
+
+![Expenses](screenshots/expense.png)
+
+### Analytics
+
+![Analytics](screenshots/ana1.png)
+
+
+![Analytics](screenshots/ana2.png)
+
+### Settings
+
+![Settings](screenshots/settings.png)
 
 ## 🚀 Installation
 

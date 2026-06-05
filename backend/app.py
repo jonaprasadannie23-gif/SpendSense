@@ -71,10 +71,7 @@ def add_expense():
 
     data = request.json
 
-    connection = sqlite3.connect(
-        r"C:\Users\HP\Desktop\spensense\backend\expenses.db"
-    )
-
+    connection = sqlite3.connect("expenses.db")
     cursor = connection.cursor()
 
     cursor.execute(
@@ -107,9 +104,7 @@ def add_expense():
 @app.route("/delete-expense/<int:id>", methods=["DELETE"])
 def delete_expense(id):
 
-    connection = sqlite3.connect(
-        r"C:\Users\HP\Desktop\spensense\backend\expenses.db"
-    )
+    connection = sqlite3.connect("expenses.db")
 
     cursor = connection.cursor()
 
@@ -133,10 +128,7 @@ def update_expense(id):
 
     data = request.json
 
-    connection = sqlite3.connect(
-        r"C:\Users\HP\Desktop\spensense\backend\expenses.db"
-    )
-
+    connection = sqlite3.connect("expenses.db")
     cursor = connection.cursor()
 
     cursor.execute(
@@ -174,9 +166,7 @@ def register():
 
     data = request.json
 
-    connection = sqlite3.connect(
-        r"C:\Users\HP\Desktop\spensense\backend\expenses.db"
-    )
+    connection = sqlite3.connect("expenses.db")
 
     cursor = connection.cursor()
 
@@ -210,9 +200,7 @@ def login():
 
     data = request.json
 
-    connection = sqlite3.connect(
-        r"C:\Users\HP\Desktop\spensense\backend\expenses.db"
-    )
+    connection = sqlite3.connect("expenses.db")
 
     cursor = connection.cursor()
 
@@ -265,9 +253,7 @@ def update_income(user_id):
 
     data = request.json
 
-    connection = sqlite3.connect(
-        r"C:\Users\HP\Desktop\spensense\backend\expenses.db"
-    )
+    connection = sqlite3.connect("expenses.db")
 
     cursor = connection.cursor()
 
@@ -301,9 +287,7 @@ def change_password():
 
     data = request.json
 
-    connection = sqlite3.connect(
-        r"C:\Users\HP\Desktop\spensense\backend\expenses.db"
-    )
+    connection = sqlite3.connect("expenses.db")
 
     cursor = connection.cursor()
 
@@ -372,7 +356,9 @@ def change_password():
         "Password updated successfully"
     }
 
-
 if __name__ == "__main__":
 
-    app.run(debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=5000
+    )

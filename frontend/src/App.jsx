@@ -140,7 +140,7 @@ const [showLogoutPopup, setShowLogoutPopup] =
 
       const response =
         await axios.get(
-          `http://127.0.0.1:5000/expenses?user_id=${currentUserId}`
+          `https://spendsense-1fam.onrender.com/expenses?user_id=${currentUserId}`
         );
 
       setExpenses(
@@ -181,7 +181,7 @@ const [showLogoutPopup, setShowLogoutPopup] =
     try {
 
       await axios.post(
-        "http://127.0.0.1:5000/register",
+        "https://spendsense-1fam.onrender.com/register",
 
         {
           username,
@@ -225,7 +225,7 @@ const [showLogoutPopup, setShowLogoutPopup] =
 
       const response =
         await axios.post(
-          "http://127.0.0.1:5000/login",
+          "https://spendsense-1fam.onrender.com/login",
 
           {
             username,
@@ -316,7 +316,7 @@ const [showLogoutPopup, setShowLogoutPopup] =
     try {
 
       await axios.post(
-        "http://127.0.0.1:5000/add-expense",
+        "https://spendsense-1fam.onrender.com/add-expense",
         newExpense
       );
 
@@ -352,7 +352,7 @@ const [showLogoutPopup, setShowLogoutPopup] =
 
         await axios.put(
 
-          `http://127.0.0.1:5000/update-expense/${editingExpense.id}`,
+          `https://spendsense-1fam.onrender.com/update-expense/${editingExpense.id}`,
 
           {
             title:
@@ -386,7 +386,7 @@ const [showLogoutPopup, setShowLogoutPopup] =
     try {
 
       await axios.delete(
-        `http://127.0.0.1:5000/delete-expense/${id}`
+        `https://spendsense-1fam.onrender.com/delete-expense/${id}`
       );
 
       fetchExpenses();
@@ -417,7 +417,7 @@ const updateIncome = async () => {
 
     await axios.put(
 
-      `http://127.0.0.1:5000/update-income/${currentUserId}`,
+      `https://spendsense-1fam.onrender.com/update-income/${currentUserId}`,
 
       {
         income: Number(
@@ -487,7 +487,7 @@ const changePassword = async () => {
     const response =
       await axios.post(
 
-        "http://127.0.0.1:5000/change-password",
+        "https://spendsense-1fam.onrender.com/change-password",
 
         {
 

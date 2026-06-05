@@ -33,7 +33,6 @@ https://spend-sense-peach.vercel.app
 - GitHub
 - Vercel
 
-## 📸 Screenshots
 
 ## 📸 Screenshots
 
@@ -96,7 +95,5 @@ SpendSense
 ## 👨‍💻 Author
 
 Genobel Johannah P
-
----
 
 

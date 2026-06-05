@@ -72,8 +72,8 @@ SpendSense
 
 ## 👨‍💻 Author
 
-Jona Prasad Annie
+Genobel Johannah P
 
 ---
 
-Built with ❤️ using React and Flask.
+

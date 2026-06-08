@@ -40,9 +40,7 @@ https://spend-sense-peach.vercel.app
 
 ![Login Page](screenshots/login.png)
 
-### Dashboard
 
-![Dashboard](screenshots/dashboard.png)
 
 ### Expenses
 

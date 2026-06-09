@@ -1,6 +1,7 @@
 import axios from "axios";
 import "./App.css";
 import { useState, useEffect } from "react";
+import AuthForm from "./components/AuthForm";
 import {
   FaHome,
   FaWallet,
@@ -35,15 +36,6 @@ function App() {
   const [date, setDate] =
     useState("");
 
-  const [username, setUsername] =
-    useState("");
-
-  const [password, setPassword] =
-    useState("");
-
-  const [income, setIncome] =
-    useState("");
-  
   const [currentIncome, setCurrentIncome] =
   useState(0);
 
@@ -72,8 +64,6 @@ const [darkMode, setDarkMode] =
   const [isLoggedIn, setIsLoggedIn] =
     useState(false);
 
-  const [isRegistering, setIsRegistering] =
-    useState(false);
     const [showPasswordPopup, setShowPasswordPopup] =
   useState(false);
 
@@ -156,113 +146,10 @@ const [showLogoutPopup, setShowLogoutPopup] =
     }
   };
 
-  const registerUser = async () => {
-
-    if (
-      username === "" ||
-      password === ""
-    ) {
-
-      alert(
-        "Please fill all fields"
-      );
-
-      return;
-    }
-    if (!/^\d{6}$/.test(password)) {
-
-  alert(
-    "Password must contain exactly 6 digits"
-  );
-
-  return;
-}
-
-    try {
-
-      await axios.post(
-        "https://spendsense-1fam.onrender.com/register",
-
-        {
-          username,
-          password,
-          income,
-        }
-      );
-
-      alert(
-        "Registration Successful"
-      );
-
-      setUsername("");
-      setPassword("");
-      setIncome("");
-
-    }
-
-    catch (error) {
-
-      console.log(error);
-
-    }
-  };
-
-  const loginUser = async () => {
-
-    if (
-      username === "" ||
-      password === ""
-    ) {
-
-      alert(
-        "Please fill all fields"
-      );
-
-      return;
-    }
-
-    try {
-
-      const response =
-        await axios.post(
-          "https://spendsense-1fam.onrender.com/login",
-
-          {
-            username,
-            password,
-          }
-        );
-
-      if (
-        response.data.success
-      ) {
-
-        setCurrentIncome(
-          response.data.income
-        );
-
-        setCurrentUserId(
-          response.data.user_id
-        );
-
-        setIsLoggedIn(true);
-
-      }
-
-      else {
-
-        alert(
-          "Invalid Credentials"
-        );
-      }
-
-    }
-
-    catch (error) {
-
-      console.log(error);
-
-    }
+  const handleLoginSuccess = (userId, income) => {
+    setCurrentIncome(income);
+    setCurrentUserId(userId);
+    setIsLoggedIn(true);
   };
 
   const addExpense = async () => {
@@ -881,111 +768,7 @@ Title,Amount,Category,Date
 
   filteredChartData.length > 0;
   if (!isLoggedIn) {
-
-    return (
-
-      <div className="container">
-
-        <div className="auth-container">
-
-          <h2>
-
-            {isRegistering
-              ? "Register"
-              : "Login"}
-
-          </h2>
-
-          <input
-            type="text"
-
-            placeholder="Username"
-
-            value={username}
-
-            onChange={(e) =>
-              setUsername(
-                e.target.value
-              )
-            }
-          />
-
-          <input
-            type="password"
-
-            placeholder="Password"
-
-            value={password}
-
-            onChange={(e) =>
-              setPassword(
-                e.target.value
-              )
-            }
-          />
-
-          {isRegistering && (
-
-            <input
-              type="number"
-
-              placeholder="Monthly Income"
-
-              value={income}
-
-              onChange={(e) =>
-                setIncome(
-                  e.target.value
-                )
-              }
-            />
-
-          )}
-
-          <button
-
-            onClick={
-
-              isRegistering
-
-                ? registerUser
-
-                : loginUser
-            }
-          >
-
-            {isRegistering
-              ? "Register"
-              : "Login"}
-
-          </button>
-
-          <p
-            style={{
-              marginTop: "15px",
-              cursor: "pointer",
-              color: "#8b5cf6",
-            }}
-
-            onClick={() =>
-              setIsRegistering(
-                !isRegistering
-              )
-            }
-          >
-
-            {isRegistering
-
-              ? "Already have an account? Login"
-
-              : "Don't have an account? Register"}
-
-          </p>
-
-        </div>
-
-      </div>
-    );
+    return <AuthForm onLoginSuccess={handleLoginSuccess} />;
   }
 
   return (

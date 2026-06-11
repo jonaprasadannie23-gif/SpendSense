@@ -2,6 +2,7 @@ import axios from "axios";
 import "./App.css";
 import { useState, useEffect } from "react";
 import AuthForm from "./components/AuthForm";
+import ChangePasswordModal from "./components/ChangePasswordModal";
 import {
   FaHome,
   FaWallet,
@@ -66,15 +67,6 @@ const [darkMode, setDarkMode] =
 
     const [showPasswordPopup, setShowPasswordPopup] =
   useState(false);
-
-const [currentPassword, setCurrentPassword] =
-  useState("");
-
-const [newPassword, setNewPassword] =
-  useState("");
-
-const [confirmPassword, setConfirmPassword] =
-  useState("");
 const [showLogoutPopup, setShowLogoutPopup] =
   useState(false);
  
@@ -330,106 +322,6 @@ const updateIncome = async () => {
 
     alert(
       "Failed to update income"
-    );
-
-  }
-};
-const changePassword = async () => {
-
-  if (
-    !currentPassword ||
-    !newPassword ||
-    !confirmPassword
-  ) {
-
-    alert(
-      "Please fill all fields"
-    );
-
-    return;
-  }
-
-  if (
-    newPassword !==
-    confirmPassword
-  ) {
-
-    alert(
-      "Passwords do not match"
-    );
-
-    return;
-  }
-  if (!/^\d{6}$/.test(newPassword)) {
-
-  alert(
-    "Password must contain exactly 6 digits"
-  );
-
-  return;
-}
-
-  try {
-
-    const response =
-      await axios.post(
-
-        "https://spendsense-1fam.onrender.com/change-password",
-
-        {
-
-          user_id:
-            currentUserId,
-
-          current_password:
-            currentPassword,
-
-          new_password:
-            newPassword
-        }
-      );
-
-    if (
-      response.data.success
-    ) {
-
-      alert(
-        "Password updated successfully ✅"
-      );
-
-      setShowPasswordPopup(
-        false
-      );
-
-      setCurrentPassword(
-        ""
-      );
-
-      setNewPassword(
-        ""
-      );
-
-      setConfirmPassword(
-        ""
-      );
-
-    }
-
-    else {
-
-      alert(
-        response.data.message
-      );
-    }
-
-  }
-
-  catch (error) {
-
-    console.log(error);
-
-    alert(
-      "Failed to update password"
     );
 
   }
@@ -1649,68 +1541,10 @@ Title,Amount,Category,Date
 
 </div>
 {showPasswordPopup && (
-
-  <div className="modal-overlay">
-
-    <div className="modal">
-
-      <h3>
-        Change Password
-      </h3>
-
-      <input
-        type="password"
-        placeholder="Current Password"
-        value={currentPassword}
-        onChange={(e) =>
-          setCurrentPassword(
-            e.target.value
-          )
-        }
-      />
-
-      <input
-        type="password"
-        placeholder="New Password"
-        value={newPassword}
-        onChange={(e) =>
-          setNewPassword(
-            e.target.value
-          )
-        }
-      />
-
-      <input
-        type="password"
-        placeholder="Confirm Password"
-        value={confirmPassword}
-        onChange={(e) =>
-          setConfirmPassword(
-            e.target.value
-          )
-        }
-      />
-
-      <button
-        onClick={() =>
-          setShowPasswordPopup(false)
-        }
-      >
-        Cancel
-      </button>
-
-     <button
-  onClick={
-    changePassword
-  }
->
-  Update Password
-</button>
-
-    </div>
-
-  </div>
-
+  <ChangePasswordModal
+    userId={currentUserId}
+    onClose={() => setShowPasswordPopup(false)}
+  />
 )}
 
   </div>

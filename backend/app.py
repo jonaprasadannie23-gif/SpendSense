@@ -2,6 +2,10 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import sqlite3
 from datetime import datetime
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
 
 app = Flask(__name__)
 
@@ -166,9 +170,34 @@ def register():
 
     data = request.json
 
-    connection = sqlite3.connect("expenses.db")
+    connection = sqlite3.connect(
+        "expenses.db"
+    )
 
     cursor = connection.cursor()
+
+    # Check if username already exists
+
+    cursor.execute(
+        """
+        SELECT * FROM users
+        WHERE username = ?
+        """,
+        (data["username"],)
+    )
+
+    existing_user = cursor.fetchone()
+
+    if existing_user:
+
+        connection.close()
+
+        return {
+            "success": False,
+            "message": "Username already exists"
+        }
+
+    # Register user with hashed password
 
     cursor.execute(
         """
@@ -180,7 +209,9 @@ def register():
 
         (
             data["username"],
-            data["password"],
+            generate_password_hash(
+                data["password"]
+            ),
             data["income"]
         )
     )
@@ -190,39 +221,36 @@ def register():
     connection.close()
 
     return {
-        "message":
-        "User registered successfully"
+        "success": True,
+        "message": "User registered successfully"
     }
-
-
 @app.route("/login", methods=["POST"])
 def login():
 
     data = request.json
 
-    connection = sqlite3.connect("expenses.db")
+    connection = sqlite3.connect(
+        "expenses.db"
+    )
 
     cursor = connection.cursor()
 
     cursor.execute(
         """
         SELECT * FROM users
-
         WHERE username = ?
-        AND password = ?
         """,
-
-        (
-            data["username"],
-            data["password"]
-        )
+        (data["username"],)
     )
 
     user = cursor.fetchone()
 
     connection.close()
 
-    if user:
+    if user and check_password_hash(
+        user[2],
+        data["password"]
+    ):
 
         return {
 
@@ -233,7 +261,7 @@ def login():
 
             "income": user[3],
 
-            "user_id": user[0],
+            "user_id": user[0]
         }
 
     return {
@@ -243,7 +271,6 @@ def login():
 
         "success": False
     }
-
 
 @app.route(
     "/update-income/<int:user_id>",

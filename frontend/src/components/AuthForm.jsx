@@ -4,7 +4,12 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import {
   validateLoginFields,
   validateRegisterFields,
+  getUsernameRules,
+  getPasswordRules,
+  getPasswordStrength,
 } from "./authValidation";
+import PasswordChecklist from "./PasswordChecklist";
+import PasswordStrengthMeter from "./PasswordStrengthMeter";
 
 const API_BASE = "https://spendsense-1fam.onrender.com";
 
@@ -12,6 +17,7 @@ const emptyErrors = {
   username: "",
   password: "",
   confirmPassword: "",
+  income: "",
   general: "",
 };
 
@@ -26,29 +32,26 @@ export default function AuthForm({ onLoginSuccess }) {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState(emptyErrors);
 
+  // Only show confirm-match feedback after user starts typing in that field
+  const [confirmTouched, setConfirmTouched] = useState(false);
+
   const clearFieldError = (field) => {
     setErrors((prev) => ({ ...prev, [field]: "", general: "" }));
   };
 
   const getErrorMessage = (error, fallback) => {
     if (axios.isAxiosError(error)) {
-      if (error.response?.data?.message) {
-        return error.response.data.message;
-      }
-      if (!error.response) {
+      if (error.response?.data?.message) return error.response.data.message;
+      if (!error.response)
         return "Unable to connect. Please check your internet connection and try again.";
-      }
       return fallback;
     }
     return fallback;
   };
 
+  // ── Login ──────────────────────────────────────────────────────────────────
   const loginUser = async () => {
-    const { valid, errors: validationErrors } = validateLoginFields(
-      username,
-      password
-    );
-
+    const { valid, errors: validationErrors } = validateLoginFields(username, password);
     if (!valid) {
       setErrors((prev) => ({ ...prev, ...validationErrors }));
       return;
@@ -75,21 +78,20 @@ export default function AuthForm({ onLoginSuccess }) {
     } catch (error) {
       setErrors((prev) => ({
         ...prev,
-        general: getErrorMessage(
-          error,
-          "Login failed. Please try again later."
-        ),
+        general: getErrorMessage(error, "Login failed. Please try again later."),
       }));
     } finally {
       setIsLoading(false);
     }
   };
 
+  // ── Register ───────────────────────────────────────────────────────────────
   const registerUser = async () => {
     const { valid, errors: validationErrors } = validateRegisterFields(
       username,
       password,
-      confirmPassword
+      confirmPassword,
+      income
     );
 
     if (!valid) {
@@ -104,22 +106,20 @@ export default function AuthForm({ onLoginSuccess }) {
       await axios.post(`${API_BASE}/register`, {
         username: username.trim(),
         password,
-        income,
+        income: Number(income),
       });
 
-      alert("Registration Successful");
+      alert("Registration successful! You can now sign in.");
       setUsername("");
       setPassword("");
       setConfirmPassword("");
       setIncome("");
+      setConfirmTouched(false);
       setIsRegistering(false);
     } catch (error) {
       setErrors((prev) => ({
         ...prev,
-        general: getErrorMessage(
-          error,
-          "Registration failed. Please try again later."
-        ),
+        general: getErrorMessage(error, "Registration failed. Please try again later."),
       }));
     } finally {
       setIsLoading(false);
@@ -128,14 +128,8 @@ export default function AuthForm({ onLoginSuccess }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isLoading) {
-      return;
-    }
-    if (isRegistering) {
-      registerUser();
-    } else {
-      loginUser();
-    }
+    if (isLoading) return;
+    isRegistering ? registerUser() : loginUser();
   };
 
   const resetForm = () => {
@@ -143,6 +137,7 @@ export default function AuthForm({ onLoginSuccess }) {
     setShowPassword(false);
     setShowConfirmPassword(false);
     setConfirmPassword("");
+    setConfirmTouched(false);
   };
 
   const toggleMode = () => {
@@ -150,11 +145,27 @@ export default function AuthForm({ onLoginSuccess }) {
     resetForm();
   };
 
+  // ── Live derived state (registration only) ─────────────────────────────────
+  const usernameRules = isRegistering ? getUsernameRules(username) : [];
+  const passwordRules = isRegistering ? getPasswordRules(password) : [];
+  const passwordStrength = isRegistering ? getPasswordStrength(password) : null;
+  const passwordsMatch = password === confirmPassword;
+
   return (
     <div className="container auth-page">
       <div className="auth-container">
-        <h2>{isRegistering ? "Register" : "Login"}</h2>
 
+        {/* ── Branding header ── */}
+        <div className="auth-header">
+          <div className="auth-logo-mark">💰</div>
+          <h1 className="auth-brand">SpendSense</h1>
+          <p className="auth-tagline">Track smarter. Spend better.</p>
+          <h2 className="auth-title">
+            {isRegistering ? "Create Account" : "Welcome Back"}
+          </h2>
+        </div>
+
+        {/* ── General error ── */}
         {errors.general && (
           <div className="auth-error" role="alert">
             {errors.general}
@@ -162,6 +173,8 @@ export default function AuthForm({ onLoginSuccess }) {
         )}
 
         <form onSubmit={handleSubmit} noValidate>
+
+          {/* ── Username ── */}
           <div className="auth-field">
             <label htmlFor="auth-username" className="auth-label">
               Username
@@ -177,7 +190,7 @@ export default function AuthForm({ onLoginSuccess }) {
               aria-invalid={Boolean(errors.username)}
               aria-describedby={
                 [
-                  isRegistering ? "username-hint" : null,
+                  isRegistering ? "username-checklist" : null,
                   errors.username ? "username-error" : null,
                 ]
                   .filter(Boolean)
@@ -189,9 +202,9 @@ export default function AuthForm({ onLoginSuccess }) {
               }}
             />
             {isRegistering && (
-              <p id="username-hint" className="auth-hint">
-                4–20 characters; letters, numbers, and underscores only
-              </p>
+              <div id="username-checklist">
+                <PasswordChecklist rules={usernameRules} />
+              </div>
             )}
             {errors.username && (
               <p id="username-error" className="field-error" role="alert">
@@ -200,6 +213,7 @@ export default function AuthForm({ onLoginSuccess }) {
             )}
           </div>
 
+          {/* ── Password ── */}
           <div className="auth-field">
             <label htmlFor="auth-password" className="auth-label">
               Password
@@ -215,7 +229,7 @@ export default function AuthForm({ onLoginSuccess }) {
                 aria-invalid={Boolean(errors.password)}
                 aria-describedby={
                   [
-                    isRegistering ? "password-hint" : null,
+                    isRegistering ? "password-checklist" : null,
                     errors.password ? "password-error" : null,
                   ]
                     .filter(Boolean)
@@ -237,10 +251,10 @@ export default function AuthForm({ onLoginSuccess }) {
               </button>
             </div>
             {isRegistering && (
-              <p id="password-hint" className="auth-hint">
-                At least 8 characters with uppercase, lowercase, a number, and a
-                special character
-              </p>
+              <div id="password-checklist">
+                <PasswordStrengthMeter strength={passwordStrength} />
+                <PasswordChecklist rules={passwordRules} />
+              </div>
             )}
             {errors.password && (
               <p id="password-error" className="field-error" role="alert">
@@ -249,8 +263,10 @@ export default function AuthForm({ onLoginSuccess }) {
             )}
           </div>
 
+          {/* ── Registration-only fields ── */}
           {isRegistering && (
             <>
+              {/* Confirm Password */}
               <div className="auth-field">
                 <label htmlFor="auth-confirm-password" className="auth-label">
                   Confirm Password
@@ -265,10 +281,16 @@ export default function AuthForm({ onLoginSuccess }) {
                     disabled={isLoading}
                     aria-invalid={Boolean(errors.confirmPassword)}
                     aria-describedby={
-                      errors.confirmPassword ? "confirm-password-error" : undefined
+                      [
+                        confirmTouched ? "confirm-match-feedback" : null,
+                        errors.confirmPassword ? "confirm-password-error" : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" ") || undefined
                     }
                     onChange={(e) => {
                       setConfirmPassword(e.target.value);
+                      setConfirmTouched(true);
                       clearFieldError("confirmPassword");
                     }}
                   />
@@ -277,24 +299,29 @@ export default function AuthForm({ onLoginSuccess }) {
                     className="password-toggle"
                     onClick={() => setShowConfirmPassword((prev) => !prev)}
                     disabled={isLoading}
-                    aria-label={
-                      showConfirmPassword ? "Hide password" : "Show password"
-                    }
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                   >
                     {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                   </button>
                 </div>
-                {errors.confirmPassword && (
+                {/* Live match feedback — appears only after user starts typing */}
+                {confirmTouched && (
                   <p
-                    id="confirm-password-error"
-                    className="field-error"
-                    role="alert"
+                    id="confirm-match-feedback"
+                    className={`confirm-match ${passwordsMatch ? "match-ok" : "match-fail"}`}
+                    aria-live="polite"
                   >
+                    {passwordsMatch ? "✓ Passwords match" : "✗ Passwords do not match"}
+                  </p>
+                )}
+                {errors.confirmPassword && (
+                  <p id="confirm-password-error" className="field-error" role="alert">
                     {errors.confirmPassword}
                   </p>
                 )}
               </div>
 
+              {/* Monthly Income — required */}
               <div className="auth-field">
                 <label htmlFor="auth-income" className="auth-label">
                   Monthly Income
@@ -305,8 +332,19 @@ export default function AuthForm({ onLoginSuccess }) {
                   placeholder="Enter your monthly income"
                   value={income}
                   disabled={isLoading}
-                  onChange={(e) => setIncome(e.target.value)}
+                  min="1"
+                  aria-invalid={Boolean(errors.income)}
+                  aria-describedby={errors.income ? "income-error" : undefined}
+                  onChange={(e) => {
+                    setIncome(e.target.value);
+                    clearFieldError("income");
+                  }}
                 />
+                {errors.income && (
+                  <p id="income-error" className="field-error" role="alert">
+                    {errors.income}
+                  </p>
+                )}
               </div>
             </>
           )}
@@ -314,11 +352,11 @@ export default function AuthForm({ onLoginSuccess }) {
           <button type="submit" className="auth-submit-btn" disabled={isLoading}>
             {isLoading
               ? isRegistering
-                ? "Registering..."
-                : "Logging in..."
+                ? "Creating account…"
+                : "Signing in…"
               : isRegistering
-                ? "Register"
-                : "Login"}
+                ? "Create Account"
+                : "Sign In"}
           </button>
         </form>
 
@@ -335,8 +373,8 @@ export default function AuthForm({ onLoginSuccess }) {
           }}
         >
           {isRegistering
-            ? "Already have an account? Login"
-            : "Don't have an account? Register"}
+            ? "Already have an account? Sign in"
+            : "Don't have an account? Create one"}
         </p>
       </div>
     </div>
